@@ -1,0 +1,103 @@
+{
+	"name": "icarusext",
+	"displayName": "Icarus Verilog Testbench Runner",
+	"description": "Simple solution to run testbench files, includes GTKWave support.",
+	"version": "0.0.1",
+	"publisher": "theonekevin",
+	"icon": "images/icon.png",
+
+
+	"engines": {
+		"vscode": "^1.45.0"
+	},
+	"categories": [
+		"Programming Languages"
+	],
+	"activationEvents": [
+		"onCommand:icarusext.run",
+		"onCommand:icarusext.stop"
+	],
+	"main": "./out/extension.js",
+	"contributes": {
+		"commands": [
+			{
+				"command": "icarusext.run",
+				"title": "Compile and run testbench.",
+				"icon": "$(debug-start)",
+				"category": "Icarus"
+			},
+			{
+				"command": "icarusext.stop",
+				"title": "Stop testbench.",
+				"icon": "$(trash)",
+				"category": "Icarus"
+			}
+		],
+		"menus": {
+			"editor/title": [
+				{
+					"command": "icarusext.run",
+					"when": "resourceLangId == verilog",
+					"group": "navigation@1"
+				},
+				{
+					"command": "icarusext.stop",
+					"when": "resourceLangId == verilog",
+					"group": "navigation@2"
+				}
+			]
+		},
+		"configuration": {
+			"type": "object",
+			"title": "Verilog configuration",
+			"properties": {
+				"verilog.gtkwaveWatchGlob": {
+					"type": "string",
+					"default": "*.vcd",
+					"description": "GTKWave will be summoned when a file satisfying the glob is created (glob is relative to the build directory).",
+					"scope": "resource"
+				},
+				"verilog.icarusCompileArguments": {
+					"type": "string",
+					"default": "",
+					"description": "Arguments passed to Verilog compiler.",
+					"scope": "resource"
+				},
+				"verilog.icarusBuildDirectory": {
+					"type": "string",
+					"default": "build/",
+					"description": "Build folder path relative to workspace root.",
+					"scope": "resource"
+				}
+			}
+		}
+	},
+	"extensionPack": [
+		"mshr-h.veriloghdl"
+	],
+	"scripts": {
+		"vscode:prepublish": "npm run compile",
+		"compile": "tsc -p ./",
+		"lint": "eslint src --ext ts",
+		"watch": "tsc -watch -p ./",
+		"pretest": "npm run compile && npm run lint"
+	},
+	"devDependencies": {
+		"@types/fs-extra": "^9.0.1",
+		"@types/glob": "^7.1.1",
+		"@types/mocha": "^7.0.2",
+		"@types/node": "^13.11.0",
+		"@types/vscode": "^1.45.0",
+		"@typescript-eslint/eslint-plugin": "^2.30.0",
+		"@typescript-eslint/parser": "^2.30.0",
+		"eslint": "^6.8.0",
+		"glob": "^7.1.6",
+		"mocha": "^7.1.2",
+		"typescript": "^3.8.3",
+		"vscode-test": "^1.3.0"
+	},
+	"dependencies": {
+		"fs-extra": "^9.0.1",
+		"tree-kill": "^1.2.2"
+	}
+}

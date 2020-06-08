@@ -14,22 +14,27 @@
 		"Programming Languages"
 	],
 	"activationEvents": [
-		"onCommand:icarusext.run",
-		"onCommand:icarusext.stop"
+		"onLanguage:verilog"
 	],
 	"main": "./out/extension.js",
 	"contributes": {
 		"commands": [
 			{
 				"command": "icarusext.run",
-				"title": "Compile and run testbench.",
+				"title": "Compile and run testbench",
 				"icon": "$(debug-start)",
 				"category": "Icarus"
 			},
 			{
 				"command": "icarusext.stop",
-				"title": "Stop testbench.",
+				"title": "Stop and clean testbench",
 				"icon": "$(trash)",
+				"category": "Icarus"
+			},
+			{
+				"command": "icarusext.tsizer",
+				"title": "Get very rough estimate of logic count",
+				"icon": "$(circuit-board)",
 				"category": "Icarus"
 			}
 		],
@@ -67,6 +72,12 @@
 					"type": "string",
 					"default": "build/",
 					"description": "Build folder path relative to workspace root.",
+					"scope": "resource"
+				},
+				"verilog.icarusPersistentBuild": {
+					"type": "boolean",
+					"default": true,
+					"description": "True if build folder should not be cleared before each compilation.",
 					"scope": "resource"
 				}
 			}

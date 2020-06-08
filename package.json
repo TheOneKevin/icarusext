@@ -5,7 +5,15 @@
 	"version": "0.0.1",
 	"publisher": "theonekevin",
 	"icon": "images/icon.png",
-
+	"author": {
+		"name": "Kevin Dai"
+	},
+	"license": "MIT (see LICENSE.txt)",
+	"homepage": "https://github.com/TheOneKevin/icarusext",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/TheOneKevin/icarusext"
+	},
 
 	"engines": {
 		"vscode": "^1.45.0"

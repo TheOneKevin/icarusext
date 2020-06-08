@@ -1,4 +1,7 @@
 # Icarus Verilog Testbench Runner
+[![](https://img.shields.io/badge/license-MIT-orange.svg?style=flat-square)](http://opensource.org/licenses/MIT)
+[![](https://img.shields.io/static/v1?label=Icarus&message=Verilog&color=f368e0&style=flat-square)](https://github.com/steveicarus/iverilog)
+
 
 A simple extension to run single file Icarus Verilog testbenches with GTKWave integration. Hassle-free, portable, easy to configure. Combines the best bits of everything out there.
 

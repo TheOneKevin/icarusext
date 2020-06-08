@@ -8,7 +8,21 @@ This extension adds two buttons, which will appear in the titlebar of any Verilo
 
 ## Features
 
+### 1. Simple to use buttons:
 
+<img src="https://raw.githubusercontent.com/TheOneKevin/icarusext/master/images/screen1.PNG"></img>
+
+### 2. Live reporting:
+
+<img src="https://raw.githubusercontent.com/TheOneKevin/icarusext/master/images/screen2.PNG"></img>
+
+### 3. Detailed stats:
+
+<img src="https://raw.githubusercontent.com/TheOneKevin/icarusext/master/images/screen3.PNG"></img>
+
+### 4. Easy GTKWave integration:
+
+<img src="https://raw.githubusercontent.com/TheOneKevin/icarusext/master/images/screen4.PNG"></img>
 
 ## Configuration
 

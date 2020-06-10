@@ -10,7 +10,7 @@ let status: vscode.StatusBarItem;
 
 function evt(e: vscode.TextDocument | undefined) {
 	if (!e || e.languageId !== 'verilog') {
-		status.text = `$(circuit-board) It's a bit lonely here.`;
+		status.text = `$(circuit-board) It's a bit lonely here`;
 	}
 	else {
 		vscode.commands.executeCommand(ICARUS_CMD_TSIZER);

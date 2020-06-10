@@ -1,6 +1,6 @@
 {
 	"name": "icarusext",
-	"displayName": "Icarus Verilog Testbench Runner",
+	"displayName": "Verilog Testbench Runner",
 	"description": "Simple solution to run testbench files, includes GTKWave support.",
 	"version": "1.0.0",
 	"publisher": "theonekevin",
@@ -83,7 +83,7 @@
 				},
 				"verilog.icarusPersistentBuild": {
 					"type": "boolean",
-					"default": true,
+					"default": false,
 					"description": "True if build folder should not be cleared before each compilation.",
 					"scope": "resource"
 				}

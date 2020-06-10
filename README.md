@@ -1,13 +1,16 @@
-# Icarus Verilog Testbench Runner
+# Verilog Testbench Runner
 [![](https://img.shields.io/badge/license-MIT-orange.svg?style=flat-square)](http://opensource.org/licenses/MIT)
 [![](https://img.shields.io/static/v1?label=Icarus&message=Verilog&color=f368e0&style=flat-square)](https://github.com/steveicarus/iverilog)
 
+**Currently, only `iverilog` is supported.**
 
-A simple extension to run single file Icarus Verilog testbenches with GTKWave integration. Hassle-free, portable, easy to configure. Combines the best bits of everything out there.
+A simple extension to run single file Verilog testbenches with GTKWave integration. Hassle-free, portable, easy to configure. Combines the best bits of everything out there.
 
 ## Usage
 
 This extension adds two buttons, which will appear in the titlebar of any Verilog file, and a status item positioned in the lower-right corner.
+
+Be sure you have `iverilog` and `gtkwave` added to your environment PATH variable. If you need help, check out the installation guide [here](https://iverilog.fandom.com/wiki/Installation_Guide) (and for [Windows](http://bleyer.org/icarus/)).
 
 ## Features
 
@@ -15,15 +18,13 @@ This extension adds two buttons, which will appear in the titlebar of any Verilo
 
 <img src="https://raw.githubusercontent.com/TheOneKevin/icarusext/master/images/screen1.PNG"></img>
 
-### 2. Live reporting:
+### 2. Live rough logic gate estimates:
 
 <img src="https://raw.githubusercontent.com/TheOneKevin/icarusext/master/images/screen2.PNG"></img>
 
-### 3. Detailed stats:
-
 <img src="https://raw.githubusercontent.com/TheOneKevin/icarusext/master/images/screen3.PNG"></img>
 
-### 4. Easy GTKWave integration:
+### 3. Simple GTKWave integration:
 
 <img src="https://raw.githubusercontent.com/TheOneKevin/icarusext/master/images/screen4.PNG"></img>
 

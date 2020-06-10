@@ -2,7 +2,7 @@
 	"name": "icarusext",
 	"displayName": "Verilog Testbench Runner",
 	"description": "Simple solution to run testbench files, includes GTKWave support.",
-	"version": "1.0.0",
+	"version": "1.0.2",
 	"publisher": "theonekevin",
 	"icon": "images/icon.png",
 	"author": {

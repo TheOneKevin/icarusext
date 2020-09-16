@@ -21,7 +21,8 @@
 		"Programming Languages"
 	],
 	"activationEvents": [
-		"onLanguage:verilog"
+		"onLanguage:verilog",
+		"onView:synthFlowView"
 	],
 	"main": "./out/extension.js",
 	"contributes": {
@@ -29,21 +30,33 @@
 			{
 				"command": "icarusext.run",
 				"title": "Compile and run testbench",
-				"icon": "$(debug-start)",
-				"category": "Icarus"
+				"icon": "$(debug-start)"
 			},
 			{
 				"command": "icarusext.stop",
 				"title": "Stop and clean testbench",
-				"icon": "$(trash)",
-				"category": "Icarus"
+				"icon": "$(trash)"
 			},
 			{
 				"command": "icarusext.tsizer",
-				"title": "Get very rough estimate of logic count",
-				"icon": "$(circuit-board)",
-				"category": "Icarus"
-			}
+				"title": "Gets a very rough estimate of PLBs",
+				"icon": "$(circuit-board)"
+			},
+			{ "command": "icarusext.tree.reload", "title": "Reload tree", "icon": "$(sync)" },
+			{ "command": "icarusext.tree.runtask", "title": "Run task", "icon": "$(debug-start)" },
+			{ "command": "icarusext.tree.stoptask", "title": "Stop current task", "icon": "$(debug-stop)" },
+			{ "command": "icarusext.tree.addfile", "title": "Add file", "icon": "$(new-file)" },
+			{ "command": "icarusext.tree.lock", "title": "Lock configuration JSON", "icon": "$(unlock)" },
+			{ "command": "icarusext.tree.unlock", "title": "Unlock configuration JSON", "icon": "$(lock)" },
+			{ "command": "icarusext.tree.sync", "title": "Sync configuration JSON", "icon": "$(repo-push)" },
+			{ "command": "icarusext.tree.addstr", "title": "Add item", "icon": "$(add)" },
+			{ "command": "icarusext.tree.delstr", "title": "Remove item", "icon": "$(trash)" },
+			{ "command": "icarusext.tree.openlog", "title": "Open command log file", "icon": "$(link-external)" },
+			{ "command": "icarusext.tree.opencon", "title": "Show command console output", "icon": "$(terminal)" },
+			{ "command": "icarusext.tree.editbool", "title": "Toggle boolean value", "icon": "$(symbol-boolean)" },
+			{ "command": "icarusext.tree.editstring", "title": "Edit string value", "icon": "$(edit)" },
+			{ "command": "icarusext.tree.choosefile", "title": "Choose a file", "icon": "$(edit)" },
+			{ "command": "icarusext.tree.openfile", "title": "Open file", "icon": "$(go-to-file)" }
 		],
 		"menus": {
 			"editor/title": [
@@ -57,11 +70,49 @@
 					"when": "resourceLangId == verilog",
 					"group": "navigation@2"
 				}
+			],
+			"view/title": [
+				{
+					"command": "icarusext.tree.lock", "group": "navigation@1",
+					"when": "view == synthFlowView && !config.verilog.icarusLockConfig"
+				},
+				{
+					"command": "icarusext.tree.unlock", "group": "navigation@1",
+					"when": "view == synthFlowView && config.verilog.icarusLockConfig"
+				},
+				{
+					"command": "icarusext.tree.sync", "group": "navigation",
+					"when": "view == synthFlowView && !config.verilog.icarusLockConfig"
+				},
+				{
+					"command": "icarusext.tree.reload", "group": "navigation",
+					"when": "view == synthFlowView"
+				}
+			],
+			"view/item/context": [
+				{ "command": "icarusext.tree.runtask", 	"group": "inline@1", "when": "view == synthFlowView && viewItem =~ /runnable/" },
+				{ "command": "icarusext.tree.stoptask", "group": "inline@2", "when": "view == synthFlowView && viewItem =~ /runnable/" },
+				{ "command": "icarusext.tree.openfile", "group": "inline@3", "when": "view == synthFlowView && viewItem =~ /openable/" },
+				{ "command": "icarusext.tree.delstr", "group": "inline@4", "when": "view == synthFlowView && viewItem =~ /type_litem/" },
+				{ "command": "icarusext.tree.opencon", "group": "inline@5", "when": "view == synthFlowView && viewItem =~ /type_log/" },
+				{ "command": "icarusext.tree.openlog", "group": "inline@6", "when": "view == synthFlowView && viewItem =~ /type_log/" },
+
+				{ "command": "icarusext.tree.addfile", "group": "inline", "when": "view == synthFlowView && viewItem =~ /type_flist/" },
+				{ "command": "icarusext.tree.addstr", "group": "inline", "when": "view == synthFlowView && viewItem =~ /type_list/" },
+
+				{ "command": "icarusext.tree.editbool", "group": "inline", "when": "view == synthFlowView && viewItem =~ /type_bool/" },
+				{ "command": "icarusext.tree.editstring", "group": "inline", "when": "view == synthFlowView && viewItem =~ /type_string/" },
+				{ "command": "icarusext.tree.choosefile", "group": "inline", "when": "view == synthFlowView && viewItem =~ /type_file/" },
+
+				{ "command": "icarusext.run", "when": "view == synthFlowView && viewItem == flowaction" }
+			],
+			"commandPalette": [
+				{ "command": "icarusext.run", "when": "false" }
 			]
 		},
 		"configuration": {
 			"type": "object",
-			"title": "Verilog configuration",
+			"title": "Verilog build configuration",
 			"properties": {
 				"verilog.gtkwaveWatchGlob": {
 					"type": "string",
@@ -72,7 +123,7 @@
 				"verilog.icarusCompileArguments": {
 					"type": "string",
 					"default": "",
-					"description": "Arguments passed to Verilog compiler.",
+					"description": "Arguments passed to the IVerilog compiler.",
 					"scope": "resource"
 				},
 				"verilog.icarusBuildDirectory": {
@@ -86,8 +137,33 @@
 					"default": false,
 					"description": "True if build folder should not be cleared before each compilation.",
 					"scope": "resource"
+				},
+				"verilog.icarusLockConfig": {
+					"type": "boolean",
+					"default": false,
+					"description": "When true, the JSON configuration is editable through the UI and overwrite any existing comments in the file.",
+					"scope": "resource"
 				}
 			}
+		},
+		"views": {
+			"synth-flow": [
+				{
+					"id": "synthFlowView",
+					"name": "Synthesis Flow",
+					"icon": "images/flow.svg",
+					"contextualTitle": "Synthesis Flow"
+				}
+			]
+		},
+		"viewsContainers": {
+			"activitybar": [
+				{
+					"id": "synth-flow",
+					"title": "Synthesis Flow",
+					"icon": "images/flow.svg"
+				}
+			]
 		}
 	},
 	"extensionPack": [
@@ -102,20 +178,21 @@
 	},
 	"devDependencies": {
 		"@types/fs-extra": "^9.0.1",
-		"@types/glob": "^7.1.1",
+		"@types/glob": "^7.1.3",
 		"@types/mocha": "^7.0.2",
-		"@types/node": "^13.11.0",
-		"@types/vscode": "^1.45.0",
+		"@types/node": "^13.13.19",
+		"@types/vscode": "^1.49.0",
 		"@typescript-eslint/eslint-plugin": "^2.30.0",
 		"@typescript-eslint/parser": "^2.30.0",
 		"eslint": "^6.8.0",
 		"glob": "^7.1.6",
 		"mocha": "^7.1.2",
-		"typescript": "^3.8.3",
+		"typescript": "^3.9.7",
 		"vscode-test": "^1.3.0"
 	},
 	"dependencies": {
 		"fs-extra": "^9.0.1",
+		"jsonc": "^2.0.0",
 		"tree-kill": "^1.2.2"
 	}
 }

@@ -4,16 +4,21 @@ import { emptyDirSync, readFileSync } from 'fs-extra';
 import * as vscode from 'vscode';
 import * as path from 'path';
 
-const CHANNEL_NAME = "Icarus Output";
-const OPTION_OPEN = "Open in GTKWave";
-const TSIZER_NAME = "Icarus Tsizer Output";
+const CHANNEL_NAME      = "Icarus Output";
+const OPTION_OPEN       = "Open in GTKWave";
+const TSIZER_NAME       = "Icarus Tsizer Output";
 
 // Config
-const CONFIG = vscode.workspace.getConfiguration("verilog");
-const CONFIG_GLOB = CONFIG.get<string>('gtkwaveWatchGlob') || '';
-const CONFIG_ARGS = CONFIG.get<string>('icarusCompileArguments') || '';
-const CONFIG_BUILD = CONFIG.get<string>('icarusBuildDirectory') || '';
-const CONFIG_PERSIST = CONFIG.get<boolean>('icarusPersistentBuild') || false;
+class ConfigManager {
+    get config()    { return vscode.workspace.getConfiguration("verilog"); }
+    get glob()      { return this.config.get<string>('gtkwaveWatchGlob') || ''; }
+    get args()      { return this.config.get<string>('icarusCompileArguments') || ''; }
+    get build()     { return this.config.get<string>('icarusBuildDirectory') || ''; }
+    get presist()   { return this.config.get<boolean>('icarusPersistentBuild') || false; }
+    get includes()  { return this.config.get<string[]>('icarusTestbenchIncludes') || []; }
+    get incpwd()    { return this.config.get<boolean>('icarusTestbenchIncludePwd') || false; }
+}
+const CONFIG = new ConfigManager();
 
 function getWorkspaceCwd(fileUri: vscode.Uri | null = null): string {
     if (!fileUri) {
@@ -81,16 +86,18 @@ export class Runner implements vscode.Disposable {
 
         let cwd = getWorkspaceCwd(fileUri);
 
-        if (!CONFIG_PERSIST) {
-            emptyDirSync(path.resolve(cwd, CONFIG_BUILD));
+        if (!CONFIG.presist) {
+            emptyDirSync(path.resolve(cwd, CONFIG.build));
         }
 
-        let outputFileUri = path.join(CONFIG_BUILD, `${path.basename(fileUri.fsPath)}.out`);
+        let outputFileUri = path.join(CONFIG.build, `${path.basename(fileUri.fsPath)}.out`);
         let inputFileUri = path.relative(cwd, fileUri.fsPath);
-        let cmd: string = `iverilog ${CONFIG_ARGS} -o ${outputFileUri} ${inputFileUri}`;
+        let includeArgs = (CONFIG.incpwd ? `-I${path.dirname(inputFileUri)}` : '')
+            + CONFIG.includes.reduce((v, x) => `${v} -I${x}`, '');
+        
+        let cmd: string = `iverilog ${CONFIG.args} ${includeArgs} -o ${outputFileUri} ${inputFileUri}`;
 
         this.output.appendLine(` > ${cmd} \n`);
-
         this.procCompile = exec(cmd, { cwd: cwd });
         this.procCompile.stdout?.on("data", d => this.output.append(d));
         this.procCompile.stderr?.on("data", d => this.output.append(d));
@@ -104,7 +111,7 @@ export class Runner implements vscode.Disposable {
                 let newCwd = path.dirname(absOut);
                 this.execute(path.relative(newCwd, absOut), newCwd);
             } else {
-                vscode.window.showErrorMessage(`Compilation failed successfully with ${c} errors.`);
+                vscode.window.showErrorMessage(`Compilation failed with ${c} errors.`);
             }
         });
     }
@@ -128,7 +135,7 @@ export class Runner implements vscode.Disposable {
         };
 
         this.watcher = vscode.workspace.createFileSystemWatcher(
-            new vscode.RelativePattern(cwd, CONFIG_GLOB),
+            new vscode.RelativePattern(cwd, CONFIG.glob),
             false, true, true
         );
         this.watcher.onDidCreate(callback);
@@ -173,7 +180,7 @@ export class Runner implements vscode.Disposable {
         }
 
         if (cwd) {
-            emptyDirSync(path.resolve(cwd, CONFIG_BUILD));
+            emptyDirSync(path.resolve(cwd, CONFIG.build));
             this.output.appendLine("Cleaned build directory.");
         }
 
@@ -197,10 +204,10 @@ export class Runner implements vscode.Disposable {
         status.text = `$(loading~spin) Loading...`;
 
         let cwd = getWorkspaceCwd(fileUri);
-        let outputFileUri = path.join(CONFIG_BUILD, `a.out1`);
+        let outputFileUri = path.join(CONFIG.build, `a.out1`);
         let inputFileUri = path.relative(cwd, fileUri.fsPath);
         let moduleUri = path.dirname(inputFileUri);
-        let cmd: string = `iverilog -tsizer ${CONFIG_ARGS} -o ${outputFileUri} ${inputFileUri}`;
+        let cmd: string = `iverilog -tsizer ${CONFIG.args} -o ${outputFileUri} ${inputFileUri}`;
 
         this.procSizer = exec(cmd, { cwd: cwd });
         this.tsizerOutput.clear();

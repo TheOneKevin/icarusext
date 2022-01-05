@@ -25,8 +25,22 @@
 			{
 				"command": "icarusext.newProject",
 				"title": "Icarus: New Project"
+			},
+			{
+				"command": "icarusext.refreshTree",
+				"title": "Icarus: Reload project tree",
+				"icon": "$(refresh)"
 			}
 		],
+		"menus": {
+			"view/title": [
+				{
+					"command": "icarusext.refreshTree",
+					"when": "view == projectView",
+					"group": "navigation"
+				}
+			]
+		},
 		"viewsContainers": {
 			"activitybar": [
 				{

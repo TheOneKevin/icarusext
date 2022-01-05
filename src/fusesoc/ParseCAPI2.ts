@@ -5,6 +5,7 @@ import { ThemeIcon, TreeItem, TreeItemCollapsibleState, Uri } from 'vscode';
 import * as path from 'path';
 import * as YAML from 'yaml';
 import { IFileTreeItem } from '../filetree';
+import { FileError } from './FileError';
 
 const parser = require('./CAPI2Meta.js');
 
@@ -30,17 +31,21 @@ export class IPCore implements IFileTreeItem {
         const rootDir = path.dirname(filePath.fsPath);
         let obj = YAML.parse(await fs.readFile(filePath.fsPath, 'utf-8'));
         let ret = new IPCore();
-        // console.log(obj);
+        // Progress report
+        progressObj.progress.report({
+            increment: progressObj.incrementAmount,
+            message: `Processing ${++progressObj.totalProcessed}/${progressObj.totalLength}`
+        });
         // TODO: Check CAPI2 syntax beforehand
         if (!('CAPI=2' in obj))
-            throw Error(`${filePath.fsPath}\nMalformed YAML: Incorrect/missing CAPI2 version`);
+            throw FileError(filePath.fsPath, 'Malformed YAML: Incorrect/missing CAPI2 version');
         // Deserialize VLNV
         [ret.vendor, ret.library, ret.name, ret.version] = obj.name.split(':');
         // Parse default target only
         let defaultFilesets: string[] = [];
         let defaultFileset = obj.targets?.default?.filesets;
         if (!defaultFileset && !Array.isArray(defaultFileset))
-            throw Error(`${filePath.fsPath}\nMalformed YAML: Missing default target fileset`);
+            throw FileError(filePath.fsPath, 'Malformed YAML: Missing default target fileset');
         let defaultFilesetAppend = obj.targets?.default?.filesets_append;
         if (defaultFilesetAppend && Array.isArray(defaultFilesetAppend))
             defaultFileset = defaultFileset.concat(defaultFilesetAppend);
@@ -67,12 +72,6 @@ export class IPCore implements IFileTreeItem {
                 for (let d of parser.parse(expr, options))
                     ret.dependencies.push(new CAPI2Reference(d));
         }
-        //
-        // console.log(ret.filesetMap);
-        progressObj.progress.report({
-            increment: progressObj.incrementAmount,
-            message: `Processing ${++progressObj.totalProcessed}/${progressObj.totalLength}`
-        });
         return ret;
     }
 
@@ -84,7 +83,7 @@ export class IPCore implements IFileTreeItem {
     }
 
     public getTreeItem(): TreeItem {
-        let item = new TreeItem(this.getVlnv(), TreeItemCollapsibleState.Collapsed);
+        let item = new TreeItem(this.Name, TreeItemCollapsibleState.Collapsed);
         item.iconPath = new ThemeIcon('folder-library');
         return item;
     }
@@ -92,6 +91,11 @@ export class IPCore implements IFileTreeItem {
     public getVlnv(): string {
         return `${this.vendor}:${this.library}:${this.name}`;
     }
+
+    public get Vendor(): string { return this.vendor; }
+    public get Library(): string { return this.library; }
+    public get Name(): string { return this.name; }
+    public get Version(): string { return this.version; }
 }
 
 class CAPI2File implements IFileTreeItem {
@@ -125,7 +129,7 @@ class CAPI2Reference implements IFileTreeItem {
     }
     public getTreeItem(): TreeItem {
         let item = new TreeItem(this.vln);
-        item.iconPath = new ThemeIcon('library');
+        item.iconPath = new ThemeIcon('type-hierarchy-sub');
         return item;
     }
 }

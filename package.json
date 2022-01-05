@@ -49,13 +49,19 @@
 			{
 				"view": "projectView",
 				"contents": "[New Project](command:icarusext.newProject)\n[Open Project](command:icarusext.openProject)",
-				"when": "!icarusext.hasProjectOpen"
+				"when": "!icarusext.hasProjectLoading"
+			},
+			{
+				"view": "projectView",
+				"contents": "Loading project...",
+				"when": "icarusext.hasProjectLoading && !icarusext.hasProjectOpen"
 			}
 		]
 	},
 	"scripts": {
 		"vscode:prepublish": "npm run compile",
-		"compile": "tsc -p ./",
+		"pegjs": "pegjs -o ./out/fusesoc/CAPI2Meta.js ./src/fusesoc/CAPI2Meta.pegjs",
+		"compile": "npm run pegjs && tsc -p ./",
 		"watch": "tsc -watch -p ./",
 		"pretest": "npm run compile && npm run lint",
 		"lint": "eslint src --ext ts",
@@ -75,6 +81,7 @@
 		"@vscode/test-electron": "^1.6.2"
 	},
 	"dependencies": {
+		"pegjs": "^0.10.0",
 		"yaml": "^1.10.2"
 	}
 }

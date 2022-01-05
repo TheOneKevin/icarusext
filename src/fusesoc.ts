@@ -1,2 +1,2 @@
-export { Project } from './fusesoc/ParseProject'
-export { IPCore } from './fusesoc/ParseCAPI2'
+export { Project } from './fusesoc/ParseProject';
+export { IPCore } from './fusesoc/ParseCAPI2';
